@@ -30,11 +30,13 @@ class Leaf:
 
 
 class DecisionTree:
-    def __init__(self, min_samples_split=2, max_depth=100):
+    def __init__(self, min_samples_split=2, max_depth=100, n_random_features=None):
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
+        self.n_random_features = n_random_features
 
     def fit(self, X, y):
+        self.n_random_features = X.shape[1] if not self.n_random_features else min(self.n_random_features, X.shape[1])
         self.root = self._grow(X, y)
 
     def predict(self, X):
@@ -53,33 +55,34 @@ class DecisionTree:
             value = self._vote(y)
             return Leaf(value)
 
-        best_feat_idx, best_threshold = self._best_criteria(X, y)
-        best_feat = X[:, best_feat_idx]
-        left_idx, right_idx = split(best_feat, best_threshold)
+        random_feature_idx = np.random.choice(range(n_features), self.n_random_features, replace=False)
+
+        best_feature_idx, best_threshold = self._best_criteria(X, y, random_feature_idx)
+        best_feature = X[:, best_feature_idx]
+        left_idx, right_idx = split(best_feature, best_threshold)
 
         return Node(
-            best_feat_idx,
+            best_feature_idx,
             best_threshold,
             self._grow(X[left_idx, :], y[left_idx], depth + 1),
             self._grow(X[right_idx, :], y[right_idx], depth + 1)
         )
 
-    def _best_criteria(self, X, y):
-        n_samples, n_features = X.shape
-        best_feat_idx = None
+    def _best_criteria(self, X, y, random_feature_idx):
+        best_feature_idx = None
         best_threshold = None
         best_grain = -1
-        for feat_idx in range(n_features):
+        for feat_idx in random_feature_idx:
             feat_column = X[:, feat_idx]
             thresholds = np.unique(feat_column)
             for threshold in thresholds:
                 gain = self._information_gain(feat_column, y, threshold)
                 if gain > best_grain:
-                    best_feat_idx = feat_idx
+                    best_feature_idx = feat_idx
                     best_threshold = threshold
                     best_grain = gain
 
-        return best_feat_idx, best_threshold
+        return best_feature_idx, best_threshold
 
     def _information_gain(self, feat_column, y, threshold):
         left_idx, right_idx = split(feat_column, threshold)
@@ -95,7 +98,7 @@ class DecisionTree:
         return y_entropy - y_split_entropy
 
     def _vote(self, y):
-        return np.argmax(np.bincount(y.astype('int')))
+        return int(np.argmax(np.bincount(y.astype('int'))))
 
     def _traverse(self, x, node):
         if isinstance(node, Leaf):
