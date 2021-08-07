@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class LinearRegression:
     def __init__(self, learning_rate=0.1, n_iterations=4000, regularization=None, C=0.1):
         self.learning_rate = learning_rate
