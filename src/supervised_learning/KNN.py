@@ -2,8 +2,10 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
+from base import BaseEstimator
 
-class BaseKNN(ABC):
+
+class BaseKNN(ABC, BaseEstimator):
 
     def __init__(self, k):
         self.k = k
@@ -14,15 +16,15 @@ class BaseKNN(ABC):
         pass
 
     def fit(self, X, y):
-        self.X_train = X
-        self.y_train = y
+        self._X_train = X
+        self._y_train = y
 
     def predict(self, X):
         y_pred = []
         for x in X:
-            dist = np.sqrt(np.sum((self.X_train - x) ** 2, axis=0))
+            dist = np.sqrt(np.sum((self._X_train - x) ** 2, axis=0))
             idx = np.argsort(dist)[:self.k]
-            k_y = self.y_train[idx]
+            k_y = self._y_train[idx]
             y_pred.append(self._vote(k_y))
         return y_pred
 

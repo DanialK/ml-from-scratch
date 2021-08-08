@@ -1,7 +1,8 @@
 from typing import Union
-
 import numpy as np
 from dataclasses import dataclass
+
+from base import BaseEstimator
 
 
 def entropy(y):
@@ -29,7 +30,7 @@ class Leaf:
     value: int
 
 
-class DecisionTree:
+class DecisionTree(BaseEstimator):
     def __init__(self, min_samples_split=2, max_depth=100, n_random_features=None):
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
@@ -37,10 +38,10 @@ class DecisionTree:
 
     def fit(self, X, y):
         self.n_random_features = X.shape[1] if not self.n_random_features else min(self.n_random_features, X.shape[1])
-        self.root = self._grow(X, y)
+        self._root = self._grow(X, y)
 
     def predict(self, X):
-        y_pred = [self._traverse(x, self.root) for x in X]
+        y_pred = [self._traverse(x, self._root) for x in X]
         return np.array(y_pred)
 
     def _grow(self, X, y, depth=0):

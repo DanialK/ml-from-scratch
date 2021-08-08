@@ -1,26 +1,28 @@
 import numpy as np
 
+from base import BaseEstimator
 
-class KMeans:
+
+class KMeans(BaseEstimator):
     def __init__(self, k, max_iterations):
         self.k = k
         self.max_iterations = max_iterations
 
     def fit(self, X):
-        self.centroids = self._init_centroids(X)
+        self._centroids = self._init_centroids(X)
 
         for iterations in range(self.max_iterations):
             # assign clusters
-            self.clusters = self._assign_cluster(X)
+            self._clusters = self._assign_cluster(X)
 
-            old_centroids = self.centroids
+            old_centroids = self._centroids
             # calculate new centroids
-            self.centroids = self._calculate_centroids(X)
+            self._centroids = self._calculate_centroids(X)
 
-            if self._is_converged(old_centroids, self.centroids):
+            if self._is_converged(old_centroids, self._centroids):
                 break
 
-        self._labels = self._get_labels(X, self.clusters)
+        self._labels = self._get_labels(X, self._clusters)
 
     def predict(self, X):
         clusters = self._assign_cluster(X)
@@ -36,13 +38,13 @@ class KMeans:
     def _assign_cluster(self, X):
         clusters = [[] for _ in range(self.k)]
         for idx, sample in enumerate(X):
-            closest_centroid_idx = np.argmin(np.sqrt(np.sum((sample - self.centroids) ** 2, axis=1)))
+            closest_centroid_idx = np.argmin(np.sqrt(np.sum((sample - self._centroids) ** 2, axis=1)))
             clusters[closest_centroid_idx].append(idx)
         return clusters
 
     def _calculate_centroids(self, X):
         centroids = []
-        for cluster_idxs in self.clusters:
+        for cluster_idxs in self._clusters:
             centroid = np.mean(X[cluster_idxs], axis=0)
             centroids.append(centroid)
         return np.array(centroids)
