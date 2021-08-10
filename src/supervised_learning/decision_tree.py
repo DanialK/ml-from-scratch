@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Union
 import numpy as np
 from dataclasses import dataclass
@@ -10,12 +11,14 @@ def entropy(y, weights=None):
     ps = hist / len(y)
     return -np.sum([p * np.log2(p) for p in ps if p > 0])
 
+
 def gini(y, weights=None):
     if weights is None:
         weights = np.full(y.shape[0], 1 / y.shape[0])
     hist = np.bincount(y, weights)
     ps = hist / np.sum(weights)
     return 1 - np.sum([p ** 2 for p in ps])
+
 
 def split(x, threshold):
     left_idx = np.where(x <= threshold)[0]
@@ -36,12 +39,11 @@ class Leaf:
     value: int
 
 
-class DecisionTree(BaseEstimator):
-    def __init__(self, min_samples_split=2, max_depth=100, n_random_features=None, criterion='entropy'):
+class DecisionTree(ABC, BaseEstimator):
+    def __init__(self, min_samples_split, max_depth, n_random_features=None):
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
         self.n_random_features = n_random_features
-        self.criterion = criterion
 
     def fit(self, X, y, weights=None):
         self.n_random_features = X.shape[1] if not self.n_random_features else min(self.n_random_features, X.shape[1])
@@ -98,23 +100,15 @@ class DecisionTree(BaseEstimator):
         if len(left_idx) == 0 or len(right_idx) == 0:
             return 0
 
-        y_quality = self._split_quality(y, weights)
-        left_y_quality = self._split_quality(y[left_idx], (weights[left_idx] if weights is not None else None))
-        right_y_quality = self._split_quality(y[right_idx], (weights[right_idx] if weights is not None else None))
-        y_split_quality = len(left_idx) / len(y) * left_y_quality + len(right_idx) / len(y) * right_y_quality
+        return self._impurity_calculation(y, left_idx, right_idx, weights)
 
-        return y_quality - y_split_quality
+    @abstractmethod
+    def _impurity_calculation(self, y, left_idx, right_idx, weights=None):
+        raise NotImplementedError()
 
-    def _split_quality(self, y, weights=None):
-        if self.criterion == 'entropy':
-            return entropy(y, weights)
-        elif self.criterion == 'gini':
-            return gini(y, weights)
-        else:
-            raise f"criterion={self.criterion} not supported"
-
+    @abstractmethod
     def _vote(self, y):
-        return np.argmax(np.bincount(y.astype('int')))
+        raise NotImplementedError()
 
     def _traverse(self, x, node):
         if isinstance(node, Leaf):
@@ -126,3 +120,29 @@ class DecisionTree(BaseEstimator):
             return self._traverse(x, node.left)
         else:
             return self._traverse(x, node.right)
+
+
+class DecisionTreeClassifier(DecisionTree):
+    def __init__(self, min_samples_split=2, max_depth=100, n_random_features=None, criterion='entropy'):
+        super(DecisionTreeClassifier, self).__init__(min_samples_split, max_depth, n_random_features)
+        self.criterion = criterion
+
+    def _quality(self, y, weights=None):
+        if self.criterion == 'entropy':
+            return entropy(y, weights)
+        elif self.criterion == 'gini':
+            return gini(y, weights)
+        else:
+            raise f"criterion={self.criterion} not supported"
+
+    def _impurity_calculation(self, y, left_idx, right_idx, weights=None):
+        y_quality = self._quality(y, weights)
+        left_y_quality = self._quality(y[left_idx], (weights[left_idx] if weights is not None else None))
+        right_y_quality = self._quality(y[right_idx], (weights[right_idx] if weights is not None else None))
+        y_split_quality = len(left_idx) / len(y) * left_y_quality + len(right_idx) / len(y) * right_y_quality
+
+        return y_quality - y_split_quality
+
+    def _vote(self, y):
+        return np.argmax(np.bincount(y.astype('int')))
+

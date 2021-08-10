@@ -1,7 +1,7 @@
 import numpy as np
 from base import BaseEstimator
 
-from supervised_learning.decision_tree import DecisionTree
+from supervised_learning.decision_tree import DecisionTreeClassifier
 
 
 def bootstrap_sample(X, y):
@@ -15,16 +15,18 @@ def most_common_label(y):
 
 
 class RandomForest(BaseEstimator):
-    def __init__(self, n_trees=10, min_samples_split=2, max_depth=100, n_random_features=None):
+    def __init__(self, n_trees=10, min_samples_split=2, max_depth=100, n_random_features=None, criterion='entropy'):
         self.n_trees = n_trees
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
         self.n_random_features = n_random_features
+        self.criterion = criterion
+
         self._trees = []
 
     def fit(self, X, y):
         for i in range(self.n_trees):
-            tree = DecisionTree(self.min_samples_split, self.max_depth, self.n_random_features)
+            tree = DecisionTreeClassifier(self.min_samples_split, self.max_depth, self.n_random_features, self.criterion)
             X_samp, y_samp = bootstrap_sample(X, y)
             tree.fit(X_samp, y_samp)
             self._trees.append(tree)

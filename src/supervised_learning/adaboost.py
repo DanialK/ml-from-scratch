@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 
-from supervised_learning.decision_tree import DecisionTree
+from supervised_learning.decision_tree import DecisionTreeClassifier
 
 
 class DecisionStump:
@@ -95,7 +95,7 @@ class AdaboostV2(Adaboost):
         weights = np.full(n_samples, 1 / n_samples)
 
         for i in range(self.n_clf):
-            clf = DecisionTree(max_depth=1, criterion='gini')
+            clf = DecisionTreeClassifier(max_depth=1, criterion='gini')
             clf.fit(X, np.clip(y, 0, 1), weights)
             predictions = clf.predict(X)
             predictions[predictions == 0] = -1
