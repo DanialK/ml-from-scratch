@@ -146,3 +146,19 @@ class DecisionTreeClassifier(DecisionTree):
     def _vote(self, y):
         return np.argmax(np.bincount(y.astype('int')))
 
+
+class DecisionTreeRegressor(DecisionTree):
+    def __init__(self, min_samples_split=2, max_depth=100, n_random_features=None):
+        super(DecisionTreeRegressor, self).__init__(min_samples_split, max_depth, n_random_features)
+
+    def _impurity_calculation(self, y, left_idx, right_idx, weights=None):
+        y_var = np.var(y)
+        y_left_var = np.var(y[left_idx])
+        y_right_var = np.var(y[right_idx])
+        variance_reduction = y_var - (len(left_idx) / len(y) * y_left_var + len(right_idx) / len(y) * y_right_var)
+
+        return np.sum(variance_reduction)
+
+    def _vote(self, y):
+        value = np.mean(y)
+        return value
