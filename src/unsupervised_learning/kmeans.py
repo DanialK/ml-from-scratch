@@ -8,6 +8,10 @@ class KMeans(BaseEstimator):
         self.k = k
         self.max_iterations = max_iterations
 
+        self._clusters = None
+        self._centroids = None
+        self._labels = None
+
     def fit(self, X):
         self._centroids = self._init_centroids(X)
 

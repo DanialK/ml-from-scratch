@@ -45,6 +45,8 @@ class DecisionTree(ABC, BaseEstimator):
         self.max_depth = max_depth
         self.n_random_features = n_random_features
 
+        self._root = None
+
     def fit(self, X, y, weights=None):
         self.n_random_features = X.shape[1] if not self.n_random_features else min(self.n_random_features, X.shape[1])
         self._root = self._grow(X, y, weights)

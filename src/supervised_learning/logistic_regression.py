@@ -9,6 +9,9 @@ class LogisticRegression(BaseEstimator):
         self.regularization = regularization
         self.C = C
 
+        self._weights = None
+        self._bias = None
+
     def _init_parameters(self, X):
         _, n_features = X.shape
         self._weights = np.zeros(n_features)
@@ -48,6 +51,8 @@ class LogisticRegressionV2(BaseEstimator):
         self.regularization = regularization
         self.C = C
 
+        self._theta = None
+
     def _init_parameters(self, X):
         _, n_features = X.shape
         self._theta = np.zeros(n_features + 1)
@@ -85,6 +90,8 @@ class MultinomialLogisticRegression(BaseEstimator):
         self.n_iterations = n_iterations
         self.regularization = regularization
         self.C = C
+
+        self._theta = None
 
     def _init_parameters(self, X, y):
         n_features = X.shape[1]

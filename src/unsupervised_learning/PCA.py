@@ -7,6 +7,9 @@ class PCA(BaseEstimator):
     def __init__(self, n_components):
         self.n_components = n_components
 
+        self._X_mean = None
+        self._components = None
+
     def fit(self, X):
         n_samples = X.shape[0]
         self._X_mean = np.mean(X, axis=0)
@@ -31,6 +34,9 @@ class PCAv2(BaseEstimator):
     def __init__(self, n_components):
         self.n_components = n_components
 
+        self._X_mean = None
+        self._components = None
+
     def fit(self, X):
         n_samples = X.shape[0]
         self._X_mean = np.mean(X, axis=0)
@@ -40,8 +46,6 @@ class PCAv2(BaseEstimator):
 
         U, S, V = np.linalg.svd(C)
 
-        # self.U = U[:, :self.n_components]
-        # self.S = S[:self.n_components]
         self._components = V[:self.n_components]
 
     def transform(self, X):

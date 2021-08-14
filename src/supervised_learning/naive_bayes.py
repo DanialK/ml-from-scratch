@@ -31,6 +31,10 @@ class BaseGaussianNB(ABC):
     def __init__(self, var_smoothing):
         self.var_smoothing = var_smoothing
 
+        self._priors = None
+        self._parameters = None
+        self._epsilon = None
+
     def _init_parameters(self, X, y):
         y_counts = np.bincount(y)
         self._priors = y_counts / np.sum(y_counts)

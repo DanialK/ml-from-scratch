@@ -9,6 +9,8 @@ class LinearRegression(BaseEstimator):
         self.regularization = regularization
         self.C = C
 
+        self._theta = None
+
     def _init_parameters(self, X):
         _, n_features = X.shape
         self._theta = np.zeros(n_features + 1)
@@ -36,6 +38,8 @@ class LinearRegressionV2:
     def __init__(self, regularization=None, lambda0=0.1):
         self.regularization = regularization
         self.lambda0 = lambda0
+
+        self._theta = None
 
     def fit(self, X, y):
         n_samples, _ = X.shape

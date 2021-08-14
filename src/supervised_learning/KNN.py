@@ -11,6 +11,9 @@ class BaseKNN(ABC, BaseEstimator):
         self.k = k
         super().__init__()
 
+        self._X_train = None
+        self._y_train = None
+
     @abstractmethod
     def _vote(self, k_y):
         pass

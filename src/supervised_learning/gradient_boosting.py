@@ -110,6 +110,7 @@ class GradientBoosting(ABC):
     def _initial_prediction(self, y):
         raise NotImplementedError()
 
+
 # details reference: https://youtu.be/2xudPOBz-vs
 class GradientBoostingRegressor(GradientBoosting):
     def __init__(self, n_estimators, min_samples_split, max_depth, learning_rate):
@@ -123,13 +124,13 @@ class GradientBoostingRegressor(GradientBoosting):
     def _initial_prediction(self, y):
         return np.mean(y)
 
+
 # details reference: https://youtu.be/jxuNLH5dXCs
 class GradientBoostingClassifier(GradientBoosting):
     def __init__(self, n_estimators, min_samples_split, max_depth, learning_rate):
         loss = LogisticLoss()
         tree = BoostedDecisionTreeRegressor(loss, min_samples_split, max_depth)
-        super(GradientBoostingClassifier, self).__init__(tree, n_estimators, min_samples_split, max_depth,
-                                                         learning_rate)
+        super(GradientBoostingClassifier, self).__init__(tree, n_estimators, min_samples_split, max_depth, learning_rate)
 
     def predict(self, X):
         p = self._log_odds_to_prob(self._predict(X))
